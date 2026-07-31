@@ -6,12 +6,16 @@ import { GearController } from './gear.controller';
 
 const router = express.Router();
 
+// Public routes
+router.get('/', GearController.getAllGears);
 router.get(
   '/my-listings',
   auth('PROVIDER', 'ADMIN'),
   GearController.getMyGearListings
 );
+router.get('/:id', GearController.getSingleGear);
 
+// Protected routes (Provider / Admin)
 router.post(
   '/',
   auth('PROVIDER', 'ADMIN'),
