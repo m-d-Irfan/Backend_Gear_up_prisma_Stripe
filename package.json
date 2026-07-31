@@ -11,6 +11,9 @@
     "prisma:generate": "prisma generate",
     "seed": "ts-node prisma/seed.ts"
   },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "keywords": [
     "express",
     "typescript",
