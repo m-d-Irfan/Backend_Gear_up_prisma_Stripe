@@ -14,12 +14,12 @@ const options: swaggerJsdoc.Options = {
     },
     servers: [
       {
-        url: 'http://localhost:5000/api/v1',
-        description: 'Local Development Server',
-      },
-      {
         url: '/api/v1',
         description: 'Vercel Live Production Server',
+      },
+      {
+        url: 'http://localhost:5000/api/v1',
+        description: 'Local Development Server',
       },
     ],
     components: {
