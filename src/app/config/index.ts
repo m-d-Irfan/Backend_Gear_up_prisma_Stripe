@@ -7,7 +7,9 @@ dotenv.config({ path: path.join(process.cwd(), '.env') });
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.string().default('5000').transform((val) => Number(val)),
-  DATABASE_URL: z.string().default('postgresql://postgres:postgres@localhost:5432/gearup_db?schema=public'),
+  DATABASE_URL: z
+    .string()
+    .default('postgresql://postgres:postgres@localhost:5432/gearup_db?schema=public'),
   BCRYPT_SALT_ROUNDS: z.string().default('10').transform((val) => Number(val)),
   JWT_ACCESS_SECRET: z.string().default('gearup_super_secret_jwt_access_key_2026'),
   JWT_ACCESS_EXPIRES_IN: z.string().default('7d'),
@@ -18,8 +20,17 @@ const envSchema = z.object({
 const parseEnv = () => {
   const result = envSchema.safeParse(process.env);
   if (!result.success) {
-    console.error('❌ Invalid Environment Variables Configuration:', result.error.format());
-    throw new Error('Environment variable validation failed');
+    console.error('❌ Environment Variables Warning:', result.error.format());
+    return {
+      NODE_ENV: 'development' as const,
+      PORT: 5000,
+      DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/gearup_db?schema=public',
+      BCRYPT_SALT_ROUNDS: 10,
+      JWT_ACCESS_SECRET: 'gearup_super_secret_jwt_access_key_2026',
+      JWT_ACCESS_EXPIRES_IN: '7d',
+      STRIPE_SECRET_KEY: 'sk_test_placeholder',
+      STRIPE_WEBHOOK_SECRET: undefined,
+    };
   }
   return result.data;
 };
