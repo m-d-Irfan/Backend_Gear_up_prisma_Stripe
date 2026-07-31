@@ -6,3 +6,132 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum UserRole {
+  CUSTOMER
+  PROVIDER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PICKED_UP
+  RETURNED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  FAILED
+}
+
+model User {
+  id        String     @id @default(uuid())
+  name      String
+  email     String     @unique
+  password  String
+  role      UserRole   @default(CUSTOMER)
+  status    UserStatus @default(ACTIVE)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  gears    Gear[]        @relation("ProviderGears")
+  orders   RentalOrder[] @relation("CustomerOrders")
+  reviews  Review[]
+  payments Payment[]
+
+  @@map("users")
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  gears Gear[]
+
+  @@map("categories")
+}
+
+model Gear {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  pricePerDay Float
+  brand       String?
+  location    String
+  stock       Int      @default(1)
+  isAvailable Boolean  @default(true)
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  providerId String
+  provider   User   @relation("ProviderGears", fields: [providerId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders  RentalOrder[]
+  reviews Review[]
+
+  @@map("gears")
+}
+
+model RentalOrder {
+  id          String        @id @default(uuid())
+  customerId  String
+  customer    User          @relation("CustomerOrders", fields: [customerId], references: [id], onDelete: Cascade)
+  gearId      String
+  gear        Gear          @relation(fields: [gearId], references: [id], onDelete: Cascade)
+  startDate   DateTime
+  endDate     DateTime
+  totalDays   Int
+  totalPrice  Float
+  orderStatus OrderStatus   @default(PENDING)
+  paymentStatus PaymentStatus @default(UNPAID)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  payment Payment?
+
+  @@map("rental_orders")
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  orderId       String        @unique
+  order         RentalOrder   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount        Float
+  transactionId String?
+  status        PaymentStatus @default(UNPAID)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@map("payments")
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  customerId String
+  customer   User     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  gearId     String
+  gear       Gear     @relation(fields: [gearId], references: [id], onDelete: Cascade)
+  rating     Int
+  comment    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("reviews")
+}
