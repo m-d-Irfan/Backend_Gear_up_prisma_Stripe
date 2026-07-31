@@ -101,6 +101,16 @@ const options: swaggerJsdoc.Options = {
           },
         },
       },
+      '/users': {
+        get: {
+          tags: ['User Management'],
+          summary: 'Get all users (Admin Only)',
+          security: [{ bearerAuth: [] }],
+          responses: {
+            '200': { description: 'List of all users' },
+          },
+        },
+      },
       '/categories': {
         get: {
           tags: ['Categories'],
@@ -177,6 +187,18 @@ const options: swaggerJsdoc.Options = {
           },
         },
       },
+      '/gear/{id}': {
+        get: {
+          tags: ['Gear Inventory'],
+          summary: 'Get single gear details (Public)',
+          parameters: [
+            { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+          ],
+          responses: {
+            '200': { description: 'Gear details retrieved' },
+          },
+        },
+      },
       '/orders': {
         post: {
           tags: ['Rental Orders'],
@@ -203,6 +225,43 @@ const options: swaggerJsdoc.Options = {
           },
         },
       },
+      '/orders/my-orders': {
+        get: {
+          tags: ['Rental Orders'],
+          summary: 'Get my rental orders (Customer)',
+          security: [{ bearerAuth: [] }],
+          responses: {
+            '200': { description: 'List of customer orders' },
+          },
+        },
+      },
+      '/orders/{id}/status': {
+        patch: {
+          tags: ['Rental Orders'],
+          summary: 'Update order status (Provider/Admin)',
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+          ],
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['orderStatus'],
+                  properties: {
+                    orderStatus: { type: 'string', enum: ['CONFIRMED', 'PICKED_UP', 'RETURNED', 'CANCELLED'], example: 'CONFIRMED' },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            '200': { description: 'Order status updated' },
+          },
+        },
+      },
       '/payments/create-checkout-session': {
         post: {
           tags: ['Payments'],
@@ -224,6 +283,67 @@ const options: swaggerJsdoc.Options = {
           },
           responses: {
             '200': { description: 'Stripe PaymentIntent generated' },
+          },
+        },
+      },
+      '/payments/verify': {
+        post: {
+          tags: ['Payments'],
+          summary: 'Verify and confirm payment (Customer)',
+          security: [{ bearerAuth: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['orderId', 'transactionId'],
+                  properties: {
+                    orderId: { type: 'string', example: 'order-uuid-here' },
+                    transactionId: { type: 'string', example: 'pi_mock_stripe_transaction_123' },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            '200': { description: 'Payment verified successfully' },
+          },
+        },
+      },
+      '/payments/history': {
+        get: {
+          tags: ['Payments'],
+          summary: 'Get payment history (Customer/Admin)',
+          security: [{ bearerAuth: [] }],
+          responses: {
+            '200': { description: 'Payment history retrieved' },
+          },
+        },
+      },
+      '/reviews': {
+        post: {
+          tags: ['Reviews'],
+          summary: 'Post a gear review (Customer)',
+          security: [{ bearerAuth: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  required: ['gearId', 'rating', 'comment'],
+                  properties: {
+                    gearId: { type: 'string', example: 'gear-uuid-here' },
+                    rating: { type: 'integer', example: 5 },
+                    comment: { type: 'string', example: 'Fantastic gear! Super durable.' },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            '201': { description: 'Review posted successfully' },
           },
         },
       },
