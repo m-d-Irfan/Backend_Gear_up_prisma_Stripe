@@ -12,6 +12,15 @@ const createOrderValidationSchema = z.object({
   }),
 });
 
+const updateOrderStatusValidationSchema = z.object({
+  body: z.object({
+    orderStatus: z.enum(['PENDING', 'CONFIRMED', 'PICKED_UP', 'RETURNED', 'CANCELLED'], {
+      required_error: 'orderStatus is required',
+    }),
+  }),
+});
+
 export const OrderValidation = {
   createOrderValidationSchema,
+  updateOrderStatusValidationSchema,
 };

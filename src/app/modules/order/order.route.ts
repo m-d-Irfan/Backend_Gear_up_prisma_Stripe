@@ -25,4 +25,11 @@ router.post(
   OrderController.createOrder
 );
 
+router.patch(
+  '/:id/status',
+  auth('PROVIDER', 'ADMIN'),
+  validateRequest(OrderValidation.updateOrderStatusValidationSchema),
+  OrderController.updateOrderStatus
+);
+
 export const OrderRoutes = router;

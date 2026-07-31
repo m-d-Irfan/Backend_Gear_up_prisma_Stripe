@@ -1,4 +1,4 @@
-import { UserRole } from '@prisma/client';
+import { OrderStatus, UserRole } from '@prisma/client';
 import AppError from '../../errors/AppError';
 import prisma from '../../utils/prisma';
 
@@ -137,8 +137,42 @@ const getSingleOrderFromDB = async (orderId: string, userId: string, userRole: U
   return order;
 };
 
+const updateOrderStatusInDB = async (
+  orderId: string,
+  userId: string,
+  userRole: UserRole,
+  orderStatus: OrderStatus
+) => {
+  const order = await prisma.rentalOrder.findUnique({
+    where: { id: orderId },
+    include: {
+      gear: true,
+    },
+  });
+
+  if (!order) {
+    throw new AppError(404, 'Rental order not found');
+  }
+
+  if (userRole !== 'ADMIN' && order.gear.providerId !== userId) {
+    throw new AppError(403, 'You are not authorized to update this rental order status');
+  }
+
+  const updatedOrder = await prisma.rentalOrder.update({
+    where: { id: orderId },
+    data: { orderStatus },
+    include: {
+      gear: true,
+      customer: { select: { id: true, name: true, email: true } },
+    },
+  });
+
+  return updatedOrder;
+};
+
 export const OrderService = {
   createRentalOrderInDB,
   getMyOrdersFromDB,
   getSingleOrderFromDB,
+  updateOrderStatusInDB,
 };
