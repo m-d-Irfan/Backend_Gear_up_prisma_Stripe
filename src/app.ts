@@ -13,9 +13,17 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Swagger Interactive API Documentation Route
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Swagger CDN links to fix blank page on Vercel Serverless
+const swaggerUiOptions = {
+  customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.3/swagger-ui.min.css',
+  customJs: [
+    'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.3/swagger-ui-bundle.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.3/swagger-ui-standalone-preset.js'
+  ]
+};
 
+// Swagger Interactive API Documentation Route
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
 // Central API Routes
 app.use('/api/v1', router);
 
@@ -23,7 +31,7 @@ app.use('/api/v1', router);
 app.get('/', (req: Request, res: Response) => {
   res.status(200).json({
     success: true,
-    message: 'Welcome to GearUp API - Sports & Outdoor Gear Rental Service 🏋️',
+    message: 'Welcome to GearUp API - Sports & Outdoor Gear Rental Service',
     docs: 'Interactive Swagger UI Documentation available at /api-docs',
     status: 'Server is healthy and running smoothly',
   });
