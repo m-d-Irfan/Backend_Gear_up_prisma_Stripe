@@ -29,6 +29,16 @@ app.get('/', (req: Request, res: Response) => {
   });
 });
 
+// Health endpoint for UptimeRobot / Cron monitoring
+app.get('/health', (req: Request, res: Response) => {
+  res.status(200).json({
+    success: true,
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
+});
+
 // Global Error Handler & 404 Route Catchers
 app.use(globalErrorHandler);
 app.use(notFound);

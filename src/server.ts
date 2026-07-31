@@ -15,7 +15,13 @@ async function bootstrap() {
   }
 }
 
-bootstrap();
+// Only start listening when running locally (not on Vercel serverless)
+if (process.env.VERCEL !== '1') {
+  bootstrap();
+}
+
+// Export the Express app for Vercel serverless
+export default app;
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('⚠️ Unhandled Rejection detected:', reason);
