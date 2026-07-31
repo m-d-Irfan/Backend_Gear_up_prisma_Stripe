@@ -1,0 +1,228 @@
+{
+  "info": {
+    "_postman_id": "gearup-backend-api-collection",
+    "name": "GearUp - Sports & Outdoor Gear Rental API",
+    "description": "Postman API documentation for GearUp sports and outdoor gear rental backend service.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Register Customer / Provider",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Alice Customer\",\n  \"email\": \"alice@example.com\",\n  \"password\": \"Customer123!\",\n  \"role\": \"CUSTOMER\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@gearup.com\",\n  \"password\": \"Admin123!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Categories",
+      "item": [
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/categories", "host": ["{{baseUrl}}"], "path": ["categories"] }
+          }
+        },
+        {
+          "name": "Create Category (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Climbing & Trekking\",\n  \"description\": \"Climbing harnesses, ropes, and carabiners\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/categories", "host": ["{{baseUrl}}"], "path": ["categories"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Gear Inventory",
+      "item": [
+        {
+          "name": "Browse Gear (Search & Filter)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/gear?searchTerm=tent&minPrice=10&maxPrice=100&page=1&limit=10", "host": ["{{baseUrl}}"], "path": ["gear"], "query": [{ "key": "searchTerm", "value": "tent" }] }
+          }
+        },
+        {
+          "name": "Get Single Gear Details",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/gear/:id", "host": ["{{baseUrl}}"], "path": ["gear", ":id"] }
+          }
+        },
+        {
+          "name": "Create Gear Listing (Provider)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"4-Person Waterproof Tent\",\n  \"description\": \"Spacious 4-person tent with rainfly\",\n  \"pricePerDay\": 35.0,\n  \"location\": \"Seattle, WA\",\n  \"brand\": \"North Face\",\n  \"stock\": 3,\n  \"categoryId\": \"YOUR_CATEGORY_ID\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/gear", "host": ["{{baseUrl}}"], "path": ["gear"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Rental Orders",
+      "item": [
+        {
+          "name": "Place Rental Order (Customer)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gearId\": \"YOUR_GEAR_ID\",\n  \"startDate\": \"2026-08-01\",\n  \"endDate\": \"2026-08-05\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/orders", "host": ["{{baseUrl}}"], "path": ["orders"] }
+          }
+        },
+        {
+          "name": "Get My Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/orders/my-orders", "host": ["{{baseUrl}}"], "path": ["orders", "my-orders"] }
+          }
+        },
+        {
+          "name": "Update Order Status (Provider/Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderStatus\": \"CONFIRMED\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/orders/:id/status", "host": ["{{baseUrl}}"], "path": ["orders", ":id", "status"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Payments",
+      "item": [
+        {
+          "name": "Create Stripe Checkout Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"YOUR_ORDER_ID\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/payments/create-checkout-session", "host": ["{{baseUrl}}"], "path": ["payments", "create-checkout-session"] }
+          }
+        },
+        {
+          "name": "Verify & Confirm Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"YOUR_ORDER_ID\",\n  \"transactionId\": \"pi_mock_stripe_transaction_123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/payments/verify", "host": ["{{baseUrl}}"], "path": ["payments", "verify"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. User Management & Reviews",
+      "item": [
+        {
+          "name": "Get All Users (Admin Only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] }
+          }
+        },
+        {
+          "name": "Post Gear Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gearId\": \"YOUR_GEAR_ID\",\n  \"rating\": 5,\n  \"comment\": \"Fantastic gear! Super durable and clean.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/reviews", "host": ["{{baseUrl}}"], "path": ["reviews"] }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api/v1" },
+    { "key": "token", "value": "" }
+  ]
+}
