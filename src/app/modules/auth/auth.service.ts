@@ -65,6 +65,15 @@ const registerUserIntoDB = async (payload: TRegisterUserData) => {
 const loginUserFromDB = async (payload: TLoginUserData) => {
   const user = await prisma.user.findUnique({
     where: { email: payload.email },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      password: true,
+      role: true,
+      status: true,
+      avatarUrl: true,
+    },
   });
 
   if (!user) {
