@@ -15,10 +15,11 @@ const getAllUsers = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateUserStatus = catchAsync(async (req: Request, res: Response) => {
+  const adminId = (req as any).user?.id;
   const { id } = req.params;
   const { status } = req.body;
 
-  const result = await UserService.updateUserStatusInDB(id, status);
+  const result = await UserService.updateUserStatusInDB(adminId, id, status);
 
   sendResponse(res, {
     statusCode: 200,
@@ -28,7 +29,52 @@ const updateUserStatus = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updateUserRole = catchAsync(async (req: Request, res: Response) => {
+  const adminId = (req as any).user?.id;
+  const { id } = req.params;
+  const { role } = req.body;
+
+  const result = await UserService.updateUserRoleInDB(adminId, id, role);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: `User role updated to ${role} successfully`,
+    data: result,
+  });
+});
+
+const deleteUser = catchAsync(async (req: Request, res: Response) => {
+  const adminId = (req as any).user?.id;
+  const { id } = req.params;
+
+  const result = await UserService.deleteUserFromDB(adminId, id);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'User account deleted successfully',
+    data: result,
+  });
+});
+
+const updateProfile = catchAsync(async (req: Request, res: Response) => {
+  const userId = (req as any).user?.id;
+  const result = await UserService.updateUserProfileInDB(userId, req.body);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Profile updated successfully',
+    data: result,
+  });
+});
+
 export const UserController = {
   getAllUsers,
   updateUserStatus,
+  updateUserRole,
+  deleteUser,
+  updateProfile,
 };
+

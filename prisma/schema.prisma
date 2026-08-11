@@ -38,6 +38,7 @@ model User {
   name      String
   email     String     @unique
   password  String
+  avatarUrl String?
   role      UserRole   @default(CUSTOMER)
   status    UserStatus @default(ACTIVE)
   createdAt DateTime   @default(now())
@@ -66,13 +67,15 @@ model Category {
 model Gear {
   id          String   @id @default(uuid())
   title       String
+  slug        String?  @unique
   description String
   pricePerDay Float
   brand       String?
   location    String
   stock       Int      @default(1)
   isAvailable Boolean  @default(true)
-  imageUrl    String?   
+  image       String?
+  images      String[] @default([])   
 
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)

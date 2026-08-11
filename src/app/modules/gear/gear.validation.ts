@@ -9,6 +9,8 @@ const createGearValidationSchema = z.object({
     brand: z.string().optional(),
     stock: z.number().int().min(1, 'Stock must be at least 1').default(1),
     isAvailable: z.boolean().default(true),
+    image: z.string().optional(),
+    images: z.array(z.string()).optional(),
     categoryId: z.string({ required_error: 'Category ID is required' }),
   }),
 });
@@ -22,6 +24,8 @@ const updateGearValidationSchema = z.object({
     brand: z.string().optional(),
     stock: z.number().int().min(0).optional(),
     isAvailable: z.boolean().optional(),
+    image: z.string().optional(),
+    images: z.array(z.string()).optional(),
     categoryId: z.string().optional(),
   }),
 });
@@ -30,3 +34,4 @@ export const GearValidation = {
   createGearValidationSchema,
   updateGearValidationSchema,
 };
+

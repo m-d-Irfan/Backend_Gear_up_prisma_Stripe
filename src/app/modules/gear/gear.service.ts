@@ -1,6 +1,7 @@
 import { UserRole, Prisma } from '@prisma/client';
 import AppError from '../../errors/AppError';
 import prisma from '../../utils/prisma';
+import { generateUniqueSlug } from '../../utils/slug';
 
 type TCreateGearData = {
   title: string;
@@ -10,6 +11,8 @@ type TCreateGearData = {
   brand?: string;
   stock: number;
   isAvailable?: boolean;
+  image?: string;
+  images?: string[];
   categoryId: string;
 };
 
@@ -36,9 +39,12 @@ const createGearInDB = async (providerId: string, payload: TCreateGearData) => {
     throw new AppError(404, 'Category not found');
   }
 
+  const slug = await generateUniqueSlug(payload.title);
+
   const result = await prisma.gear.create({
     data: {
       ...payload,
+      slug,
       providerId,
     },
     include: {
@@ -48,6 +54,7 @@ const createGearInDB = async (providerId: string, payload: TCreateGearData) => {
           id: true,
           name: true,
           email: true,
+          avatarUrl: true,
         },
       },
     },
@@ -63,7 +70,6 @@ const getAllGearsFromDB = async (query: TGearQueryFilters) => {
 
   const andConditions: Prisma.GearWhereInput[] = [];
 
-  // SearchTerm condition across title, description, brand, location
   if (query.searchTerm) {
     andConditions.push({
       OR: [
@@ -113,6 +119,7 @@ const getAllGearsFromDB = async (query: TGearQueryFilters) => {
           id: true,
           name: true,
           email: true,
+          avatarUrl: true,
         },
       },
       _count: {
@@ -139,9 +146,11 @@ const getAllGearsFromDB = async (query: TGearQueryFilters) => {
   };
 };
 
-const getSingleGearFromDB = async (gearId: string) => {
-  const gear = await prisma.gear.findUnique({
-    where: { id: gearId },
+const getSingleGearFromDB = async (identifier: string) => {
+  const gear = await prisma.gear.findFirst({
+    where: {
+      OR: [{ id: identifier }, { slug: identifier }],
+    },
     include: {
       category: true,
       provider: {
@@ -149,6 +158,7 @@ const getSingleGearFromDB = async (gearId: string) => {
           id: true,
           name: true,
           email: true,
+          avatarUrl: true,
         },
       },
       reviews: {
@@ -157,6 +167,7 @@ const getSingleGearFromDB = async (gearId: string) => {
             select: {
               id: true,
               name: true,
+              avatarUrl: true,
             },
           },
         },
@@ -218,9 +229,15 @@ const updateGearInDB = async (
     }
   }
 
+  const updateData: any = { ...payload };
+
+  if (payload.title && payload.title !== gear.title) {
+    updateData.slug = await generateUniqueSlug(payload.title, gearId);
+  }
+
   const result = await prisma.gear.update({
     where: { id: gearId },
-    data: payload,
+    data: updateData,
     include: {
       category: true,
     },
@@ -257,3 +274,4 @@ export const GearService = {
   updateGearInDB,
   deleteGearFromDB,
 };
+
