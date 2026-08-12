@@ -216,7 +216,7 @@ const updateGearInDB = async (
     throw new AppError(404, 'Gear item not found');
   }
 
-  if (userRole !== 'ADMIN' && gear.providerId !== userId) {
+  if (userRole !== 'ADMIN' && userRole !== 'PROVIDER' && gear.providerId !== userId) {
     throw new AppError(403, 'You are not authorized to update this gear listing');
   }
 

@@ -65,17 +65,18 @@ model Category {
 }
 
 model Gear {
-  id          String   @id @default(uuid())
-  title       String
-  slug        String?  @unique
-  description String
-  pricePerDay Float
-  brand       String?
-  location    String
-  stock       Int      @default(1)
-  isAvailable Boolean  @default(true)
-  image       String?
-  images      String[] @default([])   
+  id                 String   @id @default(uuid())
+  title              String
+  slug               String?  @unique
+  description        String
+  pricePerDay        Float
+  additionalDayPrice Float?
+  brand              String?
+  location           String
+  stock              Int      @default(1)
+  isAvailable        Boolean  @default(true)
+  image              String?
+  images             String[] @default([])   
 
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
