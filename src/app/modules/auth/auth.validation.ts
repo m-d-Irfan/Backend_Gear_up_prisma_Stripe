@@ -6,6 +6,9 @@ const registerValidationSchema = z.object({
     email: z.string({ required_error: 'Email is required' }).email('Invalid email address format'),
     password: z.string({ required_error: 'Password is required' }).min(6, 'Password must be at least 6 characters'),
     role: z.enum(['CUSTOMER', 'PROVIDER']).default('CUSTOMER'),
+    gender: z.string().optional(),
+    companyName: z.string().optional(),
+    officeAddress: z.string().optional(),
   }),
 });
 
