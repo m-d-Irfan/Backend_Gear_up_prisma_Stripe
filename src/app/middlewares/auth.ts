@@ -21,15 +21,13 @@ declare global {
 const auth = (...requiredRoles: UserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new AppError(401, 'You are not authorized to access this route');
-    }
-
-    const token = authHeader.split(' ')[1];
+    const token =
+      authHeader && authHeader.startsWith('Bearer ')
+        ? authHeader.split(' ')[1]
+        : req.cookies?.accessToken || (req as any).cookies?.accessToken;
 
     if (!token) {
-      throw new AppError(401, 'Invalid authentication token');
+      throw new AppError(401, 'You are not authorized to access this route');
     }
 
     const decoded = verifyToken(token, config.jwt.access_secret) as {

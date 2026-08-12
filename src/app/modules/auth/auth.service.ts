@@ -80,6 +80,13 @@ const loginUserFromDB = async (payload: TLoginUserData) => {
     throw new AppError(401, 'Invalid email or password');
   }
 
+  if (!user.password) {
+    throw new AppError(
+      400,
+      'This account was registered using Google Sign-In. Please sign in with Google.'
+    );
+  }
+
   if (user.status === 'SUSPENDED') {
     throw new AppError(403, 'Your account has been suspended by an administrator');
   }
@@ -87,6 +94,77 @@ const loginUserFromDB = async (payload: TLoginUserData) => {
   const isPasswordMatch = await comparePassword(payload.password, user.password);
   if (!isPasswordMatch) {
     throw new AppError(401, 'Invalid email or password');
+  }
+
+  const jwtPayload = {
+    id: user.id,
+    email: user.email,
+    role: user.role,
+  };
+
+  const accessToken = createToken(
+    jwtPayload,
+    config.jwt.access_secret,
+    config.jwt.access_expires_in
+  );
+
+  return {
+    accessToken,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      avatarUrl: user.avatarUrl || DEFAULT_CARTOON_AVATARS[0],
+      role: user.role,
+      status: user.status,
+    },
+  };
+};
+
+const googleLoginUserFromDB = async (payload: {
+  email: string;
+  name: string;
+  avatarUrl?: string;
+  role?: UserRole;
+}) => {
+  let user = await prisma.user.findUnique({
+    where: { email: payload.email },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      status: true,
+      avatarUrl: true,
+    },
+  });
+
+  if (!user) {
+    const randomAvatar =
+      payload.avatarUrl ||
+      DEFAULT_CARTOON_AVATARS[Math.floor(Math.random() * DEFAULT_CARTOON_AVATARS.length)];
+
+    user = await prisma.user.create({
+      data: {
+        name: payload.name,
+        email: payload.email,
+        password: null,
+        avatarUrl: randomAvatar,
+        role: payload.role || 'CUSTOMER',
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        status: true,
+        avatarUrl: true,
+      },
+    });
+  }
+
+  if (user.status === 'SUSPENDED') {
+    throw new AppError(403, 'Your account has been suspended by an administrator');
   }
 
   const jwtPayload = {
@@ -139,6 +217,7 @@ const getProfileFromDB = async (userId: string) => {
 export const AuthService = {
   registerUserIntoDB,
   loginUserFromDB,
+  googleLoginUserFromDB,
   getProfileFromDB,
 };
 
