@@ -34,16 +34,20 @@ const getAllUsersFromDB = async (query: { role?: UserRole; status?: UserStatus }
 };
 
 const updateUserStatusInDB = async (adminId: string, userId: string, status: UserStatus) => {
-  if (adminId === userId && status === 'SUSPENDED') {
-    throw new AppError(400, 'Administrators cannot suspend their own account');
-  }
-
   const user = await prisma.user.findUnique({
     where: { id: userId },
   });
 
   if (!user) {
     throw new AppError(404, 'User not found');
+  }
+
+  if (user.email.toLowerCase() === 'admin@gearup.com') {
+    throw new AppError(400, 'SuperAdmin profile cannot be suspended');
+  }
+
+  if (adminId === userId && status === 'SUSPENDED') {
+    throw new AppError(400, 'Administrators cannot suspend their own account');
   }
 
   const updatedUser = await prisma.user.update({
@@ -64,8 +68,13 @@ const updateUserStatusInDB = async (adminId: string, userId: string, status: Use
 };
 
 const updateUserRoleInDB = async (adminId: string, userId: string, role: UserRole) => {
+  const adminUser = await prisma.user.findUnique({ where: { id: adminId } });
+  if (adminUser?.email.toLowerCase() !== 'admin@gearup.com') {
+    throw new AppError(403, 'Only SuperAdmin can modify user roles');
+  }
+
   if (adminId === userId && role !== 'ADMIN') {
-    throw new AppError(400, 'Administrators cannot revoke their own admin role');
+    throw new AppError(400, 'SuperAdmin role is protected');
   }
 
   const user = await prisma.user.findUnique({
@@ -94,16 +103,16 @@ const updateUserRoleInDB = async (adminId: string, userId: string, role: UserRol
 };
 
 const deleteUserFromDB = async (adminId: string, userId: string) => {
-  if (adminId === userId) {
-    throw new AppError(400, 'Administrators cannot delete their own account');
-  }
-
   const user = await prisma.user.findUnique({
     where: { id: userId },
   });
 
   if (!user) {
     throw new AppError(404, 'User not found');
+  }
+
+  if (user.email.toLowerCase() === 'admin@gearup.com') {
+    throw new AppError(400, 'SuperAdmin profile is protected and cannot be deleted');
   }
 
   await prisma.user.delete({
