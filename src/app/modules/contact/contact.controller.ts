@@ -17,33 +17,7 @@ const sendContactInquiry = catchAsync(async (req: Request, res: Response) => {
 
   const adminEmail = process.env.SMTP_USER || 'grabgear4100@gmail.com';
 
-  // 1. Send inquiry alert to GrabGear inbox (grabgear4100@gmail.com) with replyTo set to customer's email
-  const adminSubject = `New Website Inquiry from ${email || phone || 'Customer'}`;
-  const adminHtml = `
-    <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 24px; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
-      <h2 style="color: #059669; margin-top: 0;">New Contact Inquiry Received</h2>
-      <p style="font-size: 14px; margin: 6px 0;"><strong>Customer Email:</strong> ${email || 'Not Provided'}</p>
-      <p style="font-size: 14px; margin: 6px 0;"><strong>WhatsApp / Phone:</strong> ${phone || 'Not Provided'}</p>
-      <p style="font-size: 14px; margin: 16px 0 6px 0;"><strong>Customer Message:</strong></p>
-      <blockquote style="background: #f8fafc; padding: 14px; border-left: 4px solid #059669; font-size: 14px; line-height: 1.6; margin: 0; color: #334155;">
-        ${message}
-      </blockquote>
-      <p style="font-size: 12px; color: #64748b; margin-top: 20px;">
-        💡 <em>To reply directly to this customer, simply click <strong>Reply</strong> in your Gmail app.</em>
-      </p>
-    </div>
-  `;
-
-  const adminText = `New Contact Inquiry Received\n\nCustomer Email: ${email || 'Not Provided'}\nPhone/WhatsApp: ${phone || 'Not Provided'}\n\nMessage:\n${message}\n\nClick Reply to email the customer directly.`;
-
-  try {
-    // Setting replyTo to email makes hitting "Reply" in Gmail reply directly to the customer!
-    await sendEmail(adminEmail, adminSubject, adminHtml, email || adminEmail, adminText);
-  } catch (err) {
-    console.error('Failed to send admin notification email:', err);
-  }
-
-  // 2. Send automated acknowledgment email back to customer (if email provided)
+  // Send single automated confirmation email ONLY to the customer's email address 
   if (email && email.trim()) {
     const customerSubject = 'We received your inquiry - GrabGear Outdoor Rentals';
     const customerHtml = `
@@ -77,7 +51,7 @@ const sendContactInquiry = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: 'Inquiry submitted successfully. Email sent via SMTP.',
+    message: 'Inquiry submitted successfully. Confirmation email sent to you.',
     data: { email, phone },
   });
 });
