@@ -1,7 +1,7 @@
-# GearUp 🏕️🚴‍♂️
+# GrabGear 🏕️🚴‍♂️
 **"Rent Sports & Outdoor Gear Instantly"**
 
-GearUp is a robust RESTful backend API for a sports and outdoor equipment rental service. It connects **Customers** who want to rent gear with **Providers** who manage their inventory, while **Admins** oversee the platform. 
+GrabGear is a robust RESTful backend API for a sports and outdoor equipment rental service. It connects **Customers** who want to rent gear with **Providers** who manage their inventory, while **Admins** oversee the platform. 
 
 The API is fully documented using Swagger and includes secure role-based authorization, automated payments via Stripe, and strict data validation.
 
